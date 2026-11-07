@@ -58,8 +58,9 @@
  }
  const contact=$('[data-contact-details]');
  if(contact){
-  if(config.email){const a=document.createElement('a');a.href='mailto:'+config.email;a.textContent=config.email;contact.append(a);}
-  if(config.phoneDisplay){const a=document.createElement(config.phoneLink?'a':'p');if(config.phoneLink)a.href='tel:'+config.phoneLink;a.textContent=config.phoneDisplay;contact.append(a);}
+  contact.innerHTML='';
+  if(config.email){const a=document.createElement('a');a.href='mailto:'+config.email;a.textContent='Mail: '+config.email;contact.append(a);}
+  if(config.phoneDisplay){const a=document.createElement(config.phoneLink?'a':'p');if(config.phoneLink)a.href='tel:'+config.phoneLink;a.textContent='Contact: '+config.phoneDisplay;contact.append(a);}
   if(config.address){const el=document.createElement('p');el.textContent=config.address;contact.append(el);}
   if(config.mapUrl && /^https:\/\//.test(config.mapUrl)){const a=document.createElement('a');a.href=config.mapUrl;a.textContent='Find us on the map ↗';a.target='_blank';a.rel='noopener noreferrer';contact.append(a);}
   if(!contact.children.length){contact.innerHTML='<p>Direct contact details will be available here soon. You can prepare a project brief using the form.</p>';}
