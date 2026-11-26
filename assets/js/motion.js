@@ -42,20 +42,15 @@
  }
  const hero=document.querySelector('.hero');const heroMedia=document.querySelector('.hero-media');
  const heroImg=heroMedia?.querySelector('img');const heroHeadline=document.querySelector('.hero-heading h1');
- const story=document.querySelector('.power-story');const pin=story?.querySelector('.power-story-pin');
- const slides=story?[...story.querySelectorAll('.story-slide')]:[];
- const segments=story?[...story.querySelectorAll('.story-steps i')]:[];
- const storyImg=story?.querySelector('.story-image');const counter=story?.querySelector('.story-counter');
  const parallax=all('.wide-image,.project-cover,.expertise-photo').map(el=>({el,img:el.querySelector('img')})).filter(x=>x.img);
  let frame=0,last=0,current=scrollY,ready=false;
  function reset(){
   root.classList.toggle('cinematic-motion',!reduced.matches);
-  root.classList.toggle('story-motion',!reduced.matches&&!mobile.matches);
   root.classList.toggle('motion-observer',!reduced.matches&&!!observer);
   if(reduced.matches){
    cancelAnimationFrame(frame);frame=0;
    all('.motion-word-inner').forEach(el=>el.style.removeProperty('opacity'));
-   [heroImg,heroHeadline,heroMedia,storyImg,...parallax.map(x=>x.img),...slides].filter(Boolean).forEach(el=>{el.style.removeProperty('transform');el.style.removeProperty('opacity');});
+   [heroImg,heroHeadline,heroMedia,...parallax.map(x=>x.img)].filter(Boolean).forEach(el=>{el.style.removeProperty('transform');el.style.removeProperty('opacity');});
   }
   current=scrollY;requestTick();
  }
@@ -80,21 +75,6 @@
    const progress=clamp((vh-r.top)/(vh+r.height));
    img.style.transform=`translate3d(0,${(progress-.5)*60}px,0) scale(1.1)`;
   });
-  if(story&&pin&&!mobile.matches){
-   const rect=story.getBoundingClientRect();
-   const start=scrollY+rect.top;const pinTop=parseFloat(getComputedStyle(pin).top)||0;const progress=clamp((current-start+pinTop)/(story.offsetHeight-pin.offsetHeight));
-   const phase=progress*3;let index=Math.min(2,Math.floor(phase));
-   // All panels remain semantic content; only the visible layer takes pointer events.
-   slides.forEach((slide,i)=>{
-    const local=phase-i;const enter=i===0?1:clamp((local+.25)/.25);const leave=i===2?1:1-clamp((local-.70)/.30);
-    const alpha=enter*leave;slide.style.opacity=String(alpha);
-    slide.style.transform=`translate3d(0,${(1-enter)*60-(1-leave)*45}px,0)`;
-    slide.style.pointerEvents=alpha>.5?'auto':'none';
-   });
-   segments.forEach((el,i)=>el.style.transform=`scaleX(${clamp(phase-i)})`);
-   storyImg.style.transform=`scale(${1.04+progress*.14}) translate3d(0,${-progress*20}px,0)`;
-   counter.textContent=`0${index+1} / 03`;
-  }else slides.forEach(slide=>{slide.style.opacity='';slide.style.transform='';});
   frame=0;
   if(Math.abs(scrollY-current)>.2)frame=requestAnimationFrame(tick);else{current=scrollY;last=0;}
  }

@@ -88,4 +88,52 @@
    }else{download();status.textContent='Your project brief is ready. Save the downloaded text file for sharing. This has not been sent to ELECTROFINE.';}
   });
  }
+ // Horizontal auto-carousel for engineering perspective (.power-story).
+ const story=$('.power-story');
+ const storyTrack=story?$('.story-slides',story):null;
+ const storySlides=storyTrack?$$('.story-slide',storyTrack):[];
+ if(story && storyTrack && storySlides.length>1){
+  const dots=$$('[data-story-dot]',story);
+  const prev=$('[data-story-prev]',story),next=$('[data-story-next]',story);
+  const counter=$('.story-counter',story),bg=$('.story-image',story);
+  const duration=4500;
+  let index=0,timer=0,paused=false,touchStartX=0,touchStartY=0;
+  const setPaused=state=>{paused=state;story.classList.toggle('is-paused',paused);if(paused){clearInterval(timer);timer=0;}else startAuto();};
+  const show=nextIdx=>{
+   index=(nextIdx+storySlides.length)%storySlides.length;
+   storyTrack.style.transform=`translate3d(-${index*100}%,0,0)`;
+   if(bg && !reduced.matches)bg.style.transform=`scale(1.08) translate3d(${-index*2}%,0,0)`;
+   if(counter)counter.textContent=`0${index+1} / 0${storySlides.length}`;
+   storySlides.forEach((s,i)=>s.setAttribute('aria-hidden',String(i!==index)));
+   dots.forEach((d,i)=>{
+    d.classList.remove('is-active');
+    d.classList.toggle('is-done',i<index);
+    d.setAttribute('aria-pressed',String(i===index));
+    if(i===index){void d.offsetWidth;d.classList.add('is-active');}
+   });
+  };
+  const startAuto=()=>{
+   clearInterval(timer);timer=0;
+   if(reduced.matches||paused||document.hidden)return;
+   timer=setInterval(()=>show(index+1),duration);
+  };
+  const go=target=>{show(target);startAuto();};
+  dots.forEach((d,i)=>d.addEventListener('click',()=>go(i)));
+  prev?.addEventListener('click',()=>go(index-1));
+  next?.addEventListener('click',()=>go(index+1));
+  story.addEventListener('mouseenter',()=>setPaused(true));
+  story.addEventListener('mouseleave',()=>setPaused(false));
+  story.addEventListener('focusin',()=>setPaused(true));
+  story.addEventListener('focusout',e=>{if(!story.contains(e.relatedTarget))setPaused(false);});
+  story.addEventListener('touchstart',e=>{if(e.touches.length===1){touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;}},{passive:true});
+  story.addEventListener('touchend',e=>{
+   if(!touchStartX||e.changedTouches.length!==1)return;
+   const dx=e.changedTouches[0].clientX-touchStartX,dy=e.changedTouches[0].clientY-touchStartY;
+   touchStartX=0;touchStartY=0;
+   if(Math.abs(dx)>40 && Math.abs(dx)>Math.abs(dy)*1.2){go(dx<0?index+1:index-1);}
+  },{passive:true});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden){clearInterval(timer);timer=0;}else startAuto();});
+  reduced.addEventListener('change',()=>{if(reduced.matches){clearInterval(timer);timer=0;story.classList.add('is-paused');}else{story.classList.remove('is-paused');startAuto();}});
+  show(0);startAuto();
+ }
 })();
